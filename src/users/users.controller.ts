@@ -13,6 +13,9 @@ import {
 import { User } from './user.entity';
 import { UserRole } from './enums/user-role.enum';
 import { UsersService } from './users.service';
+import { UserSaveDto } from './dto/user.save.dto';
+import { ApiOkResponse } from '@nestjs/swagger';
+import { UserDto } from './dto/user.dto';
 
 // http://10.20.30.40:3000/users
 @Controller('users')
@@ -23,8 +26,12 @@ export class UsersController {
 
   // POST -> http://10.20.30.40:3000/users (в теле ожидаем данные юзера)
   @Post()
-  async create(@Body() user: User): Promise<User> {
-    return this.service.create(user);
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOkResponse({
+    type: UserDto
+  })
+  async create(@Body() saveDto: UserSaveDto): Promise<UserDto> {
+    return this.service.create(saveDto);
   }
 
   // GET -> http://10.20.30.40:3000/users

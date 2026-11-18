@@ -2,15 +2,23 @@ import { Injectable } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
 import { User } from './user.entity';
 import { UserRole } from './enums/user-role.enum';
+import { UserSaveDto } from './dto/user.save.dto';
+import { UserDto } from './dto/user.dto';
+import { UsersMapper } from './dto/user.mapper';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly repository: UsersRepository) {}
+  constructor(
+    private readonly repository: UsersRepository,
+    private readonly mapper: UsersMapper,
+  ) {}
 
-  async create(user: User): Promise<User> {
-    user.role = UserRole.CUSTOMER;
-    user.active = true;
-    return this.repository.save(user);
+  async create(saveDto: UserSaveDto): Promise<UserDto> {
+    const entity: User = this.mapper.mapDtoToEntity(saveDto);
+    entity.role = UserRole.CUSTOMER;
+    entity.active = true;
+    await this.repository.save(entity);
+    return this.mapper.mapEntityToDto(entity);
   }
 
   async getAllActiveUsers(): Promise<User[]> {
