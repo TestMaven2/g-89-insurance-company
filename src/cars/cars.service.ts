@@ -2,17 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { Car } from './car.entity';
 import { CarsRepository } from './cars.repository';
 import { UsersService } from '../users/users.service';
+import { CarMapper } from './dto/car.mapper';
+import { CarSaveDto } from './dto/car.save.dto';
+import { CarDto } from './dto/car.dto';
 
 @Injectable()
 export class CarsService {
   constructor(
     private readonly repository: CarsRepository,
     private readonly userService: UsersService,
+    private readonly mapper: CarMapper,
   ) {}
 
-  async create(car: Car): Promise<Car> {
-    car.active = true;
-    return await this.repository.save(car);
+  async create(saveDto: CarSaveDto): Promise<CarDto> {
+    // вытащить юзера по айди
+    const entity: Car = this.mapper.mapDtoToEntity(saveDto);
+    entity.active = true;
+    await this.repository.save(entity);
+    return this.mapper.mapEntityToDto(entity);
   }
 
   async getAllActiveCars(): Promise<Car[]> {
