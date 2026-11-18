@@ -12,6 +12,8 @@ import {
 } from '@nestjs/common';
 import { Car } from './car.entity';
 import { CarsService } from './cars.service';
+import { CarSaveDto } from './dto/car.save.dto';
+import { CarDto } from './dto/car.dto';
 
 @Controller('cars')
 export class CarsController {
@@ -19,8 +21,8 @@ export class CarsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() car: Car): Promise<Car> {
-    return await this.service.create(car);
+  async create(@Body() saveDto: CarSaveDto): Promise<CarDto> {
+    return await this.service.create(saveDto);
   }
 
   @Get()
