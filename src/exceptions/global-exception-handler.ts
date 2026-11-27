@@ -1,5 +1,6 @@
 import {
   ArgumentsHost,
+  BadRequestException,
   Catch,
   ExceptionFilter,
   HttpException,
@@ -18,9 +19,26 @@ export class GlobalExceptionHandler implements ExceptionFilter {
     const response: any = context.getResponse();
 
     let status: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message: string = 'Internal server error';
+    let message: string | string[] = 'Internal server error';
 
-    if (exception instanceof HttpException) {
+    if (exception instanceof BadRequestException) {
+      status = exception.getStatus();
+      const excResponse = exception.getResponse();
+
+      if (typeof excResponse === 'string') {
+        message = excResponse;
+      } else if (
+        typeof excResponse === 'object' &&
+        'message' in excResponse &&
+        Array.isArray(excResponse.message)
+      ) {
+        message = excResponse.message;
+      } else {
+        message = 'Bad request';
+      }
+
+      this.logger.warn(message);
+    } else if (exception instanceof HttpException) {
       status = exception.getStatus();
       message = exception.message;
       this.logger.warn(message);
